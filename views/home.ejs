@@ -1,0 +1,27 @@
+
+<% if(user) { %>
+  <div>
+    <%= user.name %> | 
+    <form style="display:inline;" action="/logout?_method=DELETE" method="POST">
+      <button type="submit">Logout</button>
+    </form>
+  </div>
+  
+<% } else { %>  
+  <div>  
+    <a href="/login">Login</a> | <a href="/register">Register</a>
+  </div>
+<% } %>
+<h1>Passport Login Webdev Simplified</h1>
+
+<h3>수업소개</h3>
+<p>Web Dev Simplified의 passport 인증 수업</p>
+<p>
+<div>
+  <a href="https://www.youtube.com/watch?v=-RCnNyD0L-s&ab_channel=WebDevSimplified" target="_blank">Node.js Passport Login System Tutorial</a>
+</div>
+</p>
+  
+<div>
+  <a href="/mypage">to My Page</a>
+</div>

@@ -1,0 +1,14 @@
+<% if(user) { %>
+  <div>
+    <%= user.name %> | 
+    <form style="display:inline;" action="/logout?_method=DELETE" method="POST">
+      <button type="submit">Logout</button>
+    </form>
+  </div>
+<% } %>  
+<h1>My Page Area</h1>
+<p>Only logged in user can enter his page</p>
+
+<div>
+  <a href="/">to Home</a>
+</div>
