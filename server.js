@@ -58,6 +58,18 @@ passport.use(new LocalStrategy(
   }
 ))
 
+passport.serializeUser(function (user, done) {
+  console.log('serializeUser user : ', user)
+  done(null, user.email)
+})
+
+passport.deserializeUser(function (email, done) {
+  console.log('deserializeUser email : ', email)
+  const user = userData.users.find(user => user.email === email)
+  console.log('deserializeUser user : ', user)
+  done(null, user)
+})
+
 app
   .get('/', (req, res) => {
     res.render('home.ejs', {user: req.user})
@@ -73,6 +85,15 @@ app
     failureRedirect:'/login',
     failureFlash:true
   }))
+  .get('/mypage', (req, res) => {
+    res.render('myPage.ejs', {user: req.user})
+  })
+  .get('/logout', (req, res) => {
+    req.logout(function (err) {
+      if (err) { return next(err); }
+      res.redirect('/');
+    });
+  })
 
 
 

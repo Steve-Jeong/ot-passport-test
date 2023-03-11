@@ -1,13 +1,12 @@
 <% if(user) { %>
   <div>
     <%= user.name %> | 
-    <form style="display:inline;" action="/logout?_method=DELETE" method="POST">
-      <button type="submit">Logout</button>
-    </form>
+    <a href="/logout">Logout</a>
   </div>
 <% } %>  
 <h1>My Page Area</h1>
 <p>Only logged in user can enter his page</p>
+<p>이 페이지는 로그인된 유저만 들어올 수 있습니다.</p>
 
 <div>
   <a href="/">to Home</a>
