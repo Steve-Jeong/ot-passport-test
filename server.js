@@ -74,27 +74,37 @@ app
   .get('/', (req, res) => {
     res.render('home.ejs', {user: req.user})
   })
-  .get('/login', (req, res) => {
+  .get('/login', checkLoggedOut, (req, res) => {
     console.log('get /login : req.user : ', req.user)
     console.log('/login req.session : ', req.session);
     const message = req.flash('error')[0]
     res.render('login.ejs', {message})
   })
-  .post('/login', passport.authenticate('local', {
+  .post('/login', checkLoggedOut, passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect:'/login',
     failureFlash:true
   }))
-  .get('/mypage', (req, res) => {
+  .get('/mypage', checkLoggedIn, (req, res) => {
     res.render('myPage.ejs', {user: req.user})
   })
-  .get('/logout', (req, res) => {
+  .get('/logout', checkLoggedIn, (req, res) => {
     req.logout(function (err) {
       if (err) { return next(err); }
       res.redirect('/');
     });
   })
 
+
+function checkLoggedIn(req, res, next) {
+  if(req.user === undefined) return res.redirect('/login');
+  return next()
+}
+
+function checkLoggedOut(req, res, next) {
+  if(req.user === undefined) return next();
+  return res.redirect('/');
+}
 
 
 
