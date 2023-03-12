@@ -74,13 +74,13 @@ app
   .get('/', (req, res) => {
     res.render('home.ejs', {user: req.user})
   })
-  .get('/login', checkLoggedOut, (req, res) => {
+  .get('/login', checkNotLoggedIn, (req, res) => {
     console.log('get /login : req.user : ', req.user)
     console.log('/login req.session : ', req.session);
     const message = req.flash('error')[0]
     res.render('login.ejs', {message})
   })
-  .post('/login', checkLoggedOut, passport.authenticate('local', {
+  .post('/login', checkNotLoggedIn, passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect:'/login',
     failureFlash:true
@@ -94,22 +94,30 @@ app
       res.redirect('/');
     });
   })
-
+  .get('/register', (req, res)=>{
+    res.render('register.ejs')
+  })
+  .post('/register', (req, res)=>{
+    const user = {
+      name: req.body.name,
+      email: req.body.email,
+      password:req.body.password
+    }
+    userData.users.push(user)
+    res.redirect('/login')
+  })
 
 function checkLoggedIn(req, res, next) {
   if(req.user === undefined) return res.redirect('/login');
   return next()
 }
 
-function checkLoggedOut(req, res, next) {
+function checkNotLoggedIn(req, res, next) {
   if(req.user === undefined) return next();
   return res.redirect('/');
 }
 
 
-
-
-
 const PORT = 3031
-app.listen(PORT, console.log('server is listening on port', PORT))
+app.listen(PORT, console.log(`server is listening on port http://localhost:${PORT}`))
 
