@@ -1,23 +1,9 @@
-const express = require('express')
-const session = require('express-session')
-const flash = require('connect-flash')
-const passport = require('passport')
-const LocalStrategy = require('passport-local')
-
-const userData = {
-  users: [
-    {
-      email: 'egoing777@gmail.com',
-      password: '111111',
-      name: 'egoing'
-    },
-    {
-      email: 'jst0930@gmail.com',
-      password: 'x',
-      name: 'Steve Jeong'
-    }
-  ]
-}
+import express from 'express'
+import session from 'express-session'
+import flash from 'connect-flash'
+import passport from 'passport'
+import LocalStrategy from 'passport-local'
+import { lowdb } from './lowdb.js'
 
 
 const app = express()
@@ -42,7 +28,7 @@ passport.use(new LocalStrategy(
   (email, password, done)=>{
     console.log('email : ', email)
     console.log('password : ', password)
-    const user = userData.users.find(user => user.email === email)
+    const user = lowdb.data.users.find(user => user.email === email)
 
     if (user == null) {
       console.log('user does not exist');
@@ -65,7 +51,7 @@ passport.serializeUser(function (user, done) {
 
 passport.deserializeUser(function (email, done) {
   console.log('deserializeUser email : ', email)
-  const user = userData.users.find(user => user.email === email)
+  const user = lowdb.data.users.find(user => user.email === email)
   console.log('deserializeUser user : ', user)
   done(null, user)
 })
@@ -94,16 +80,17 @@ app
       res.redirect('/');
     });
   })
-  .get('/register', (req, res)=>{
+  .get('/register', checkNotLoggedIn, (req, res)=>{
     res.render('register.ejs')
   })
-  .post('/register', (req, res)=>{
+  .post('/register', async (req, res)=>{
     const user = {
       name: req.body.name,
       email: req.body.email,
       password:req.body.password
     }
-    userData.users.push(user)
+    lowdb.data.users.push(user)
+    await lowdb.write()
     res.redirect('/login')
   })
 
