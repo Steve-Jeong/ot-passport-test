@@ -4,7 +4,7 @@ import flash from 'connect-flash'
 import passport from 'passport'
 import LocalStrategy from 'passport-local'
 import { lowdb } from './lowdb.js'
-
+import GoogleStrategy from 'passport-google-oauth20'
 
 const app = express()
 
@@ -43,6 +43,32 @@ passport.use(new LocalStrategy(
     }
   }
 ))
+
+import googleCredentials from './config/google.js'
+passport.use(new GoogleStrategy({
+    clientID: googleCredentials.web.client_id,
+    clientSecret: googleCredentials.web.client_secret,
+    callbackURL: googleCredentials.web.redirect_uris[0]
+  },
+  async function(accessToken, refreshToken, profile, done) {
+    // console.log('google verify CB accessToken : ', accessToken);
+    // console.log('google verify CB refreshToken : ', refreshToken);
+    console.log('google verify CB profile : ', profile);
+    console.log('google verify CB profile.email : ', profile._json.email);
+    const gottenUser = {
+      name:profile.displayName,
+      email:profile._json.email,
+      password: ''
+    }
+    const existingUser = lowdb.data.users.find(user => user.email === gottenUser.email)
+    if(existingUser === undefined) {
+      lowdb.data.users.push(gottenUser)
+      await lowdb.write()
+    }
+    done(null, gottenUser)
+  }
+));
+
 
 passport.serializeUser(function (user, done) {
   console.log('serializeUser user : ', user)
@@ -93,6 +119,14 @@ app
     await lowdb.write()
     res.redirect('/login')
   })
+  .get('/auth/google',
+    passport.authenticate('google', { scope: ['email','profile'] }))
+  .get('/auth/google/callback', 
+    passport.authenticate('google', { failureRedirect: '/auth/google' }),
+    function(req, res) {
+      // Successful authentication, redirect home.
+      res.redirect('/');
+  });
 
 function checkLoggedIn(req, res, next) {
   if(req.user === undefined) return res.redirect('/login');

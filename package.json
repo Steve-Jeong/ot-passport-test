@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon --ignore db.json server.js"
   },
-  "type":"module",
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -17,6 +17,7 @@
     "express-session": "^1.17.3",
     "lowdb": "^5.1.0",
     "passport": "^0.6.0",
+    "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0"
   },
   "devDependencies": {
