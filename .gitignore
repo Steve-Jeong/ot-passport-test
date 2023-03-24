@@ -1,5 +1,6 @@
 node_modules
 config/google.js
 config/facebook.js
+config/kakao.js
 db.json
 .env
