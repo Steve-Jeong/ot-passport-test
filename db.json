@@ -6,6 +6,27 @@
       "email": "jst0930@gmail.com",
       "password": "$2b$10$0X9sQl30vxUCyxFIG9xW7eQ0f09crfnGpbmDjwLdanAchHpNR2Si.",
       "provider": "Kakao"
+    },
+    {
+      "id": "ep8lCM2FyouxOpcJyt-wm",
+      "name": "Jeong Steve (갤럭시)",
+      "email": "galaxy.steve.jeong@gmail.com",
+      "password": "$2b$10$JMC9T7kk1K1oPMGWZ6/o3ucrjLflyhbuBtO1r3HVMn/WtmsRYTaYy",
+      "provider": "Google"
+    },
+    {
+      "id": "Cl85x0QCvvn5L72RKFfxC",
+      "name": "laptop nb2s",
+      "email": "nb2s.160828@gmail.com",
+      "password": "$2b$10$krfiXe/YdHtMeeIwJNbvdOzC5VRLn0DgApEczkFbKxhnCmZuMiXaC",
+      "provider": "Google"
+    },
+    {
+      "id": "hI-hcyamwxZiXrj2TBnVQ",
+      "name": "­정상태",
+      "email": "sangtae.jeong@snu.ac.kr",
+      "password": "$2b$10$6FEZtj4tK7XPpLVO3M5dz.O9rl.mTJX3LAMwlyK5UVux0vJlqwM46",
+      "provider": "Google"
     }
   ]
 }
