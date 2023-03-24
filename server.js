@@ -8,9 +8,11 @@ import GoogleStrategy from 'passport-google-oauth20'
 import 'dotenv/config.js'
 import FacebookStrategy from 'passport-facebook'
 import KakaoStrategy from 'passport-kakao'
+import NaverStrategy from 'passport-naver'
 
 const app = express()
 
+app.use(express.static('public'))
 app.set('view engine', 'ejs')
 app.use(express.urlencoded({extended:false}))
 app.use(session({
@@ -116,6 +118,25 @@ passport.use(new KakaoStrategy.Strategy(kakaoCredentials,
 ))
 
 
+import naverCredentials from './config/naver.js'
+passport.use(new NaverStrategy(naverCredentials,
+  async (accessToken, refreshToken, profile, done) => {
+    console.log('naver verify CB profile : ', profile);
+    const gottenUser = {
+      name:profile.displayName,
+      email:profile.emails[0].value,
+      password: ''
+    }
+    const existingUser = lowdb.data.users.find(user => user.email === gottenUser.email)
+    if(existingUser === undefined) {
+      lowdb.data.users.push(gottenUser)
+      await lowdb.write()
+    }
+    done(null, gottenUser)
+  }
+))
+
+
 
 passport.serializeUser(function (user, done) {
   console.log('serializeUser user : ', user)
@@ -186,6 +207,14 @@ app
     passport.authenticate('kakao'))
   .get('/auth/kakao/callback', 
     passport.authenticate('kakao', { failureRedirect: '/auth/kakao' }),
+    function(req, res) {
+      // Successful authentication, redirect home.
+      res.redirect('/');
+  })
+  .get('/auth/naver', 
+    passport.authenticate('naver'))
+  .get('/auth/naver/callback', 
+    passport.authenticate('naver', { failureRedirect: '/auth/naver' }),
     function(req, res) {
       // Successful authentication, redirect home.
       res.redirect('/');
