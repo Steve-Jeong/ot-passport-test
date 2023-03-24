@@ -7,6 +7,7 @@ import { lowdb } from './lowdb.js'
 import GoogleStrategy from 'passport-google-oauth20'
 import 'dotenv/config.js'
 import FacebookStrategy from 'passport-facebook'
+import KakaoStrategy from 'passport-kakao'
 
 const app = express()
 
@@ -45,6 +46,7 @@ passport.use(new LocalStrategy(
     }
   }
 ))
+
 
 import googleCredentials from './config/google.js'
 passport.use(new GoogleStrategy({
@@ -91,6 +93,28 @@ passport.use(new FacebookStrategy(facebookCredentials,
     done(null, gottenUser)
   }
 ));
+
+
+import kakaoCredentials from './config/kakao.js'
+passport.use(new KakaoStrategy.Strategy(kakaoCredentials,
+  async (accessToken, refreshToken, profile, done) => {
+    // 사용자의 정보는 profile에 들어있다.
+    console.log('kakao verify CB profile : ', profile);
+    console.log('kakao verify CB profile email : ', profile._json.kakao_account.email);
+    const gottenUser = {
+      name:profile.displayName,
+      email:profile._json.kakao_account.email,
+      password: ''
+    }
+    const existingUser = lowdb.data.users.find(user => user.email === gottenUser.email)
+    if(existingUser === undefined) {
+      lowdb.data.users.push(gottenUser)
+      await lowdb.write()
+    }
+    done(null, gottenUser)
+  }
+))
+
 
 
 passport.serializeUser(function (user, done) {
@@ -154,6 +178,14 @@ app
     passport.authenticate('facebook', { scope: 'email' }))
   .get('/auth/facebook/callback', 
     passport.authenticate('facebook', { failureRedirect: '/auth/facebook' }),
+    function(req, res) {
+      // Successful authentication, redirect home.
+      res.redirect('/');
+  })
+  .get('/auth/kakao', 
+    passport.authenticate('kakao'))
+  .get('/auth/kakao/callback', 
+    passport.authenticate('kakao', { failureRedirect: '/auth/kakao' }),
     function(req, res) {
       // Successful authentication, redirect home.
       res.redirect('/');
