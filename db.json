@@ -1,43 +1,11 @@
 {
   "users": [
     {
+      "id": "TAYNNSx3HU5H7xM43dtrB",
+      "name": "정상태",
       "email": "jst0930@gmail.com",
-      "password": "x",
-      "name": "Steve Jeong"
-    },
-    {
-      "name": "John",
-      "email": "w@w",
-      "password": "w"
-    },
-    {
-      "name": "PSooni",
-      "email": "psooni@gmail.com",
-      "password": "x"
-    },
-    {
-      "name": "­정상태",
-      "password": ""
-    },
-    {
-      "name": "laptop nb2s",
-      "email": "nb2s.160828@gmail.com",
-      "password": ""
-    },
-    {
-      "name": "Jeong Steve (갤럭시)",
-      "email": "galaxy.steve.jeong@gmail.com",
-      "password": ""
-    },
-    {
-      "name": "­정상태",
-      "email": "sangtae.jeong@snu.ac.kr",
-      "password": ""
-    },
-    {
-      "name": "Steve Jeong",
-      "email": "sangtae.jeong@daewooenc.com",
-      "password": ""
+      "password": "$2b$10$0X9sQl30vxUCyxFIG9xW7eQ0f09crfnGpbmDjwLdanAchHpNR2Si.",
+      "provider": "Kakao"
     }
   ]
 }

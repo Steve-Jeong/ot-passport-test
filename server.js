@@ -9,16 +9,20 @@ import 'dotenv/config.js'
 import FacebookStrategy from 'passport-facebook'
 import KakaoStrategy from 'passport-kakao'
 import NaverStrategy from 'passport-naver'
+import { nanoid } from 'nanoid/async'
+import bcrypt from 'bcrypt'
 
 const app = express()
 
+const LoginProvider = { Local: 'Local', Google: 'Google', Facebook: 'FaceBook', Kakao: 'Kakao', Naver: 'Naver' }
+
 app.use(express.static('public'))
 app.set('view engine', 'ejs')
-app.use(express.urlencoded({extended:false}))
+app.use(express.urlencoded({ extended: false }))
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  resave:false,
-  saveUninitialized:true
+  resave: false,
+  saveUninitialized: true
 }))
 app.use(flash())
 
@@ -27,12 +31,12 @@ app.use(passport.session())
 
 passport.use(new LocalStrategy(
   {
-    usernameField:'email',
-    passwordField:'password'
+    usernameField: 'email',
+    passwordField: 'password'
   },
-  (email, password, done)=>{
-    console.log('email : ', email)
-    console.log('password : ', password)
+  async (email, password, done) => {
+    // console.log('email : ', email)
+    // console.log('password : ', password)
     const user = lowdb.data.users.find(user => user.email === email)
 
     if (user == null) {
@@ -40,7 +44,7 @@ passport.use(new LocalStrategy(
       return done(null, false, { message: 'No user with that email' })
     }
 
-    if (user.password === password) {
+    if (await bcrypt.compare(password, user.password)) {
       return done(null, user)
     } else {
       console.log('user password incorrect');
@@ -52,47 +56,51 @@ passport.use(new LocalStrategy(
 
 import googleCredentials from './config/google.js'
 passport.use(new GoogleStrategy({
-    clientID: googleCredentials.web.client_id,
-    clientSecret: googleCredentials.web.client_secret,
-    callbackURL: googleCredentials.web.redirect_uris[0]
-  },
-  async function(accessToken, refreshToken, profile, done) {
+  clientID: googleCredentials.web.client_id,
+  clientSecret: googleCredentials.web.client_secret,
+  callbackURL: googleCredentials.web.redirect_uris[0]
+},
+  async function (accessToken, refreshToken, profile, done) {
     // console.log('google verify CB accessToken : ', accessToken);
     // console.log('google verify CB refreshToken : ', refreshToken);
-    console.log('google verify CB profile : ', profile);
-    console.log('google verify CB profile.email : ', profile.emails[0].value);
+    // console.log('google verify CB profile : ', profile);
+    // console.log('google verify CB profile.email : ', profile.emails[0].value);
     const gottenUser = {
-      name:profile.displayName,
-      email:profile.emails[0].value,
-      password: ''
+      id: await nanoid(),
+      name: profile.displayName,
+      email: profile.emails[0].value,
+      password: await bcrypt.hash(await nanoid(5),10),
+      provider: LoginProvider.Google
     }
     const existingUser = lowdb.data.users.find(user => user.email === gottenUser.email)
-    if(existingUser === undefined) {
+    if (existingUser === undefined) {
       lowdb.data.users.push(gottenUser)
       await lowdb.write()
     }
-    done(null, gottenUser)
+    done(null, existingUser)
   }
 ));
 
 
 import facebookCredentials from './config/facebook.js'
 facebookCredentials.profileFields = ['id', 'emails', 'name']
-passport.use(new FacebookStrategy(facebookCredentials, 
+passport.use(new FacebookStrategy(facebookCredentials,
   async function verify(accessToken, refreshToken, profile, done) {
-    console.log('facebook verify CB profile : ', profile);
-    console.log('facebook verify CB profile.email : ', profile.emails[0].value);
+    // console.log('facebook verify CB profile : ', profile);
+    // console.log('facebook verify CB profile.email : ', profile.emails[0].value);
     const gottenUser = {
-      name:profile.name.givenName + ' ' + profile.name.familyName,
-      email:profile.emails[0].value,
-      password: ''
+      id: await nanoid(),
+      name: profile.name.givenName + ' ' + profile.name.familyName,
+      email: profile.emails[0].value,
+      password: await bcrypt.hash(await nanoid(5),10),
+      provider: LoginProvider.Facebook
     }
     const existingUser = lowdb.data.users.find(user => user.email === gottenUser.email)
-    if(existingUser === undefined) {
+    if (existingUser === undefined) {
       lowdb.data.users.push(gottenUser)
       await lowdb.write()
     }
-    done(null, gottenUser)
+    done(null, existingUser)
   }
 ));
 
@@ -101,19 +109,21 @@ import kakaoCredentials from './config/kakao.js'
 passport.use(new KakaoStrategy.Strategy(kakaoCredentials,
   async (accessToken, refreshToken, profile, done) => {
     // 사용자의 정보는 profile에 들어있다.
-    console.log('kakao verify CB profile : ', profile);
-    console.log('kakao verify CB profile email : ', profile._json.kakao_account.email);
+    // console.log('kakao verify CB profile : ', profile);
+    // console.log('kakao verify CB profile email : ', profile._json.kakao_account.email);
     const gottenUser = {
-      name:profile.displayName,
-      email:profile._json.kakao_account.email,
-      password: ''
+      id: await nanoid(),
+      name: profile.displayName,
+      email: profile._json.kakao_account.email,
+      password: await bcrypt.hash(await nanoid(5),10),
+      provider: LoginProvider.Kakao
     }
     const existingUser = lowdb.data.users.find(user => user.email === gottenUser.email)
-    if(existingUser === undefined) {
+    if (existingUser === undefined) {
       lowdb.data.users.push(gottenUser)
       await lowdb.write()
     }
-    done(null, gottenUser)
+    done(null, existingUser)
   }
 ))
 
@@ -121,18 +131,20 @@ passport.use(new KakaoStrategy.Strategy(kakaoCredentials,
 import naverCredentials from './config/naver.js'
 passport.use(new NaverStrategy(naverCredentials,
   async (accessToken, refreshToken, profile, done) => {
-    console.log('naver verify CB profile : ', profile);
+    // console.log('naver verify CB profile : ', profile);
     const gottenUser = {
-      name:profile.displayName,
-      email:profile.emails[0].value,
-      password: ''
+      id: await nanoid(),
+      name: profile.displayName,
+      email: profile.emails[0].value,
+      password: await bcrypt.hash(await nanoid(5),10),
+      provider: LoginProvider.Naver
     }
     const existingUser = lowdb.data.users.find(user => user.email === gottenUser.email)
-    if(existingUser === undefined) {
+    if (existingUser === undefined) {
       lowdb.data.users.push(gottenUser)
       await lowdb.write()
     }
-    done(null, gottenUser)
+    done(null, existingUser)
   }
 ))
 
@@ -152,21 +164,21 @@ passport.deserializeUser(function (email, done) {
 
 app
   .get('/', (req, res) => {
-    res.render('home.ejs', {user: req.user})
+    res.render('home.ejs', { user: req.user })
   })
   .get('/login', checkNotLoggedIn, (req, res) => {
     console.log('get /login : req.user : ', req.user)
     console.log('/login req.session : ', req.session);
     const message = req.flash('error')[0]
-    res.render('login.ejs', {message})
+    res.render('login.ejs', { message })
   })
   .post('/login', checkNotLoggedIn, passport.authenticate('local', {
     successRedirect: '/',
-    failureRedirect:'/login',
-    failureFlash:true
+    failureRedirect: '/login',
+    failureFlash: true
   }))
   .get('/mypage', checkLoggedIn, (req, res) => {
-    res.render('myPage.ejs', {user: req.user})
+    res.render('myPage.ejs', { user: req.user })
   })
   .get('/logout', checkLoggedIn, (req, res) => {
     req.logout(function (err) {
@@ -174,59 +186,62 @@ app
       res.redirect('/');
     });
   })
-  .get('/register', checkNotLoggedIn, (req, res)=>{
+  .get('/register', checkNotLoggedIn, (req, res) => {
     res.render('register.ejs')
   })
-  .post('/register', async (req, res)=>{
+  .post('/register', async (req, res) => {
+    const hashedPassword = await bcrypt.hash(req.body.password, 10)
     const user = {
+      id: await nanoid(),
       name: req.body.name,
       email: req.body.email,
-      password:req.body.password
+      password: hashedPassword,
+      provider:LoginProvider.Local
     }
     lowdb.data.users.push(user)
     await lowdb.write()
     res.redirect('/login')
   })
   .get('/auth/google',
-    passport.authenticate('google', { scope: ['email','profile'] }))
-  .get('/auth/google/callback', 
+    passport.authenticate('google', { scope: ['email', 'profile'] }))
+  .get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/auth/google' }),
-    function(req, res) {
+    function (req, res) {
       // Successful authentication, redirect home.
       res.redirect('/');
-  })
-  .get('/auth/facebook', 
+    })
+  .get('/auth/facebook',
     passport.authenticate('facebook', { scope: 'email' }))
-  .get('/auth/facebook/callback', 
+  .get('/auth/facebook/callback',
     passport.authenticate('facebook', { failureRedirect: '/auth/facebook' }),
-    function(req, res) {
+    function (req, res) {
       // Successful authentication, redirect home.
       res.redirect('/');
-  })
-  .get('/auth/kakao', 
+    })
+  .get('/auth/kakao',
     passport.authenticate('kakao'))
-  .get('/auth/kakao/callback', 
+  .get('/auth/kakao/callback',
     passport.authenticate('kakao', { failureRedirect: '/auth/kakao' }),
-    function(req, res) {
+    function (req, res) {
       // Successful authentication, redirect home.
       res.redirect('/');
-  })
-  .get('/auth/naver', 
+    })
+  .get('/auth/naver',
     passport.authenticate('naver'))
-  .get('/auth/naver/callback', 
+  .get('/auth/naver/callback',
     passport.authenticate('naver', { failureRedirect: '/auth/naver' }),
-    function(req, res) {
+    function (req, res) {
       // Successful authentication, redirect home.
       res.redirect('/');
-  })
+    })
 
 function checkLoggedIn(req, res, next) {
-  if(req.user === undefined) return res.redirect('/login');
+  if (req.user === undefined) return res.redirect('/login');
   return next()
 }
 
 function checkNotLoggedIn(req, res, next) {
-  if(req.user === undefined) return next();
+  if (req.user === undefined) return next();
   return res.redirect('/');
 }
 

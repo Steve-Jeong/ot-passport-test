@@ -30,15 +30,16 @@ db.data ||= { users: [] }             // For Node >= 15.x
 // Finally write db.data content to file
 await db.write()
 
-const user = await db.data.users.find(user => user.email === 'jst0930@gmail.com')
-if(user === undefined) {
-  db.data.users.push(    {
-    email:'jst0930@gmail.com',
-    password:'x',
-    name:'Steve Jeong'
-  })
-  await db.write()
-}
+// sample user for development purpose
+// const user = await db.data.users.find(user => user.email === 'jst0930@gmail.com')
+// if(user === undefined) {
+//   db.data.users.push(    {
+//     email:'jst0930@gmail.com',
+//     password:'x',
+//     name:'Steve Jeong'
+//   })
+//   await db.write()
+// }
 // console.log('lowdb.posts : ', lowdb.data.users)
 
 

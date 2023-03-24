@@ -1,19 +1,18 @@
 {
   "users": [
     {
+      "id": "l_pExOfBy1yQMEwR5-G6B",
+      "name": "Steve Jeong",
       "email": "jst0930@gmail.com",
-      "password": "x",
-      "name": "Steve Jeong"
+      "password": "$2b$10$.muX27pgWIQWpkuGKbcD5OG.VQPA8y7d4JPtBXvRtju24I8e1Lmw6",
+      "provider": "Local"
     },
     {
+      "id": "yCWlRezG1WdxOScY_jQiZ",
       "name": "John",
       "email": "w@w",
-      "password": "w"
-    },
-    {
-      "name": "PSooni",
-      "email": "psooni@gmail.com",
-      "password": "x"
+      "password": "$2b$10$5DVeXGn9Idv3DLk84i7thuRXrNeG4AEiizBxYGwhVI3aXTtAL5lrG",
+      "provider": "Local"
     }
   ]
 }
